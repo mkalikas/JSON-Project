@@ -64,7 +64,7 @@ struct Array : Value, std::vector<Value*> {
 std::string indent = "";
 int weight = 0;
 
-void parse(std::ifstream & input)
+void parse(std::ifstream & input) : Null, Bool, Number, String, Array
 {
 	std::string name;
 	std::string value;
@@ -89,9 +89,9 @@ void parse(std::ifstream & input)
 
 			if (next == '{')
 			{
-				char tmpp = input.peek();
+				char temp = input.peek();
 
-				if (tmpp == '}')
+				if (temp == '}')
 				{
 					input.get(next);
 					input.get(next);
@@ -139,8 +139,8 @@ void parse(std::ifstream & input)
 			if (next == '"')
 			{
 				weight++;
-				// string
-				std::string tmp;
+				// String
+				std::string temp;
 
 				getline(input, value, '"');
 				input.get(next);
@@ -148,31 +148,31 @@ void parse(std::ifstream & input)
 
 				while (next != ',')
 				{
-					getline(input, tmp, '"');
+					getline(input, temp, '"');
 					value = value + next;
-					value = value + tmp;
+					value = value + temp;
 					input.get(next);
 				}
 
 				String str_obj;
 				str_obj.val = value;
-				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << str_obj << "\"";
+				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << str_obj.val << "\"";
 
 
 			}
 			if (next == '{')
 			{
-				// object
+				// Object
 				weight++;
-				char tmpp = input.peek();
-				input.putback(tmpp);
-				if (tmpp == '}')
+				char temp = input.peek();
+				input.putback(temp);
+				if (temp == '}')
 				{
 					input.get(next);
 					std::cout << indent << "\"" << name << "\": {}";
 					input.get(next);
 					input.get(next);
-					goto endofile;
+					goto eof1;
 
 
 				}
@@ -183,7 +183,7 @@ void parse(std::ifstream & input)
 				count++;
 				input.get(next);
 				parse(input);
-			endofile:;
+			eof1:;
 
 			}
 			if (next == '}')
@@ -195,60 +195,60 @@ void parse(std::ifstream & input)
 			}
 			if (next == '[')
 			{
-				// array
+				// Array
 				weight++;
-				//Array arr_obj;
+				Array arr_obj;
 
 				char tmppp = input.peek();
-				input.putback(tmppp);
-				if (tmppp == ']')
+				input.putback(temp);
+				if (temp == ']')
 				{
 					input.get(next);
 					std::cout << indent << "\"" << name << "\": []" << "\n";
 					input.get(next);
 					input.get(next);
-					goto endofile2;
+					goto eof2;
 				}
 				else
 					std::cout << indent << "\"" << name << "\": [" << "\n";
 
-				//count++;
-				//indent = indent + "\t";
+				count++;
+				indent = indent + "\t";
 				input.get(next);
-				//parse(input, count, indent);
-			endofile2:;
+				parse(input, count, indent);
+			eof2:;
 			}
 			if (next == 't' || next == 'f')
 			{
-				// true and false
-				bool bool_obj;
+				// Boolean values - true and false
+				Bool bool_obj;
 				weight++;
 				if (next == 't')
-					bool_obj = true;
+					bool_obj.val = true;
 				else
-					bool_obj = false;
+					bool_obj.val = false;
 
 				getline(input, nothing, 'e');
 
-				std::cout << std::boolalpha << indent << "\"" << name << "\"" << ": " << "\"" << bool_obj << "\"";
+				std::cout << std::boolalpha << indent << "\"" << name << "\"" << ": " << "\"" << bool_obj.val << "\"";
 
 				input.get(next);
 			}
 			if (next == 'n')
 			{
-				// null
+				// Null
 				weight++;
 				Null null_obj;
-				//null_obj = NULL;
+				null_obj.val = NULL;
 				getline(input, nothing, ',');
-				//std::cout << indent << "\"" << name << "\"" << ": " << "\"" << null_obj << "\",\n";
+				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << null_obj.val << "\",\n";
 				input.get(next);
 			}
-			if (isdigit(next))		// is it next = 5 or next = "5" ???
+			if (isdigit(next))	
 			{
-				// number
+				// Number
 				weight++;
-				//Number num_obj;
+				Number num_obj;
 				std::stringstream ss;
 				std::string number;
 
@@ -262,14 +262,14 @@ void parse(std::ifstream & input)
 					input.get(next);
 				}
 
-				//num_obj = stod(number);
+				num_obj = stod(number);
 
-				//std::cout << indent << "\"" << name << "\"" << ": " << "\"" << num_obj<< "\",\n";
+				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << num_obj.val << "\",\n";
 
-				input.get(next);		// need because I inserted the comma into the cout statement that was in next
+				input.get(next);		
 			}
 
-			input.get(comma);		// the comma should be skipped
+			input.get(comma);	
 			input.get(space);
 			input.get(next);
 		}
@@ -282,9 +282,9 @@ void parse(std::ifstream & input)
 
 			if (next == '"')
 			{
-				// string
+				// String
 				weight++;
-				std::string tmp;
+				std::string temp;
 
 				getline(input, value, '"');
 				input.get(next);
@@ -292,9 +292,9 @@ void parse(std::ifstream & input)
 
 				while (next != ',')
 				{
-					getline(input, tmp, '"');
+					getline(input, temp, '"');
 					value = value + next;
-					value = value + tmp;
+					value = value + temp;
 					input.get(next);
 				}
 
@@ -305,17 +305,17 @@ void parse(std::ifstream & input)
 			}
 			if (next == '{')
 			{
-				// object
+				// Object
 				weight++;
 				char tmpp = input.peek();
 				input.putback(tmpp);
 				if (tmpp == '}')
 				{
 					input.get(next);
-					std::cout << indent << "\"" << name << "\": {" << "\n\n" << indent << "}"; // << endl;
+					std::cout << indent << "\"" << name << "\": {" << "\n\n" << indent << "}"; 
 					input.get(next);
 					input.get(next);
-					goto endofile3;
+					goto eof3;
 				}
 				else
 					std::cout << indent << "\"" << name << "\"" << ": {" << "\n";
@@ -325,10 +325,10 @@ void parse(std::ifstream & input)
 				input.get(next);
 				parse(input);
 				input.get(next);
-			endofile3:;
+			eof3:;
 
 			}
-			if (next == '}')	// note sure if I need this, try to put it in while loop at top
+			if (next == '}')
 			{
 				std::cout << indent << "}";
 				input.get(next);
@@ -337,63 +337,63 @@ void parse(std::ifstream & input)
 			}
 			if (next == '[')
 			{
-				// array
+				// Array
 				weight++;
 				Array arr_obj;
 
 				char tmppp = input.peek();
-				//input.putback(tmppp);
-				if (tmppp == ']')
+				input.putback(temp);
+				if (tempp == ']')
 				{
-					//input.get(next);
+					input.get(next);
 					std::cout << indent << "\"" << name << "\": [" << "\n\n" << indent << "]";
 					input.get(next);
 					input.get(next);
-					goto endofif4;
+					goto eof4;
 				}
 				else
 					std::cout << indent << "\"" << name << "\": [" << "\n";
 
-				//count++;
-				//indent = indent + "\t";
+				count++;
+				indent = indent + "\t";
 				input.get(next);
-				//parse(input, count, indent);
+				parse(input, count, indent);
 
-			endofile4:;
+			eof4:;
 			}
 			if (next == 't' || next == 'f')
 			{
-				// true and false
+				// Bool values - true and false
 				weight++;
 				Bool bool_obj;
 
 				if (next == 't')
-					bool_obj = true;
+					bool_obj.val = true;
 				else
-					bool_obj = false;
+					bool_obj.val = false;
 
 				getline(input, nothing, 'e');
 
-				std::cout << boolalpha << indent << "\"" << name << "\"" << ": " << "\"" << bool_obj << "\"";
+				std::cout << boolalpha << indent << "\"" << name << "\"" << ": " << "\"" << bool_obj.val << "\"";
 
 				input.get(next);
 			}
 			if (next == 'n')
 			{
-				// null
+				// Null
 				weight++;
 				Null null_obj;
-				null_obj = NULL;
-				//getline(in, nothing, ',');
+				null_obj.val = NULL;
+				getline(in, nothing, ',');
 				input.get(next);	// get the 'u'
 				input.get(next);	// get the 'l'
 				input.get(next);	// get the 'l'
-				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << null_obj << "\"";
+				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << null_obj.val << "\"";
 				input.get(next);
 			}
 			if (isdigit(next))
 			{
-				// number
+				// Number
 				weight++;
 				Number num_obj;
 				stringstream ss;
@@ -411,7 +411,7 @@ void parse(std::ifstream & input)
 
 				num_obj = stod(number);
 
-				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << num_obj << "\"";
+				std::cout << indent << "\"" << name << "\"" << ": " << "\"" << num_obj.val << "\"";
 			}
 		}
 		else if (next == '}')
@@ -419,7 +419,7 @@ void parse(std::ifstream & input)
 			char temp = input.peek();
 			input.putback(temp);
 
-			std::cout << endl << indent << "}";
+			std::cout << "\n" << indent << "}";
 			int size = indent.size();
 			count--;
 			indent = indent.substr(0, size - 1);
@@ -434,12 +434,12 @@ void parse(std::ifstream & input)
 
 			}
 
-			//input.get(next);
+			input.get(next);
 			return;
 		}
 		else if (next == ']')
 		{
-			std::cout << endl << indent << "]";
+			std::cout << "\n" << indent << "]";
 			input.get(next);
 		}
 		else
@@ -466,7 +466,7 @@ int main()
 	input.open("reddit.txt");
 	out.open("results.txt");
 
-	//string indent = "";
+	std::string indent = "";
 	parse(input);
 
 	std::cout << "\n\n";
@@ -477,10 +477,10 @@ int main()
 
 	getline(input, nothing, '{');
 	input.get(quotation);
-	cout << quotation << endl;
+	std::cout << quotation << "\n";
 
 	getline(input, name, '"');
-	cout << name << endl;
+	std::cout << name << "\n";
 
 	getline(input, nothing, '"');
 	getline(input, value, '"');
