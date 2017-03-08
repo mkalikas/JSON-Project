@@ -64,7 +64,7 @@ struct Array : Value, std::vector<Value*> {
 std::string indent = "";
 int weight = 0;
 
-void parse(std::ifstream & input) : Null, Bool, Number, String, Array
+void parse(std::ifstream & input) 
 {
 	std::string name;
 	std::string value;
